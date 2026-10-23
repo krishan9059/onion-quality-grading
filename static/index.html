@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onion Quality & Size AI Assayer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.35);
+            --bg-dark: #090d16;
+            --card-bg: rgba(18, 24, 38, 0.8);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.25);
+            --warning: #f59e0b;
+            --warning-glow: rgba(245, 158, 11, 0.25);
+            --danger: #ef4444;
+            --danger-glow: rgba(239, 68, 68, 0.25);
+            --gold: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 36px 18px;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.14) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(16, 185, 129, 0.09) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 740px;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 6px;
+        }
+
+        .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: #a5b4fc;
+            padding: 5px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.8px;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 14.5px;
+            line-height: 1.5;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 22px;
+            padding: 28px;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.55);
+        }
+
+        /* Upload Area */
+        .dropzone {
+            border: 2px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 18px;
+            padding: 44px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .dropzone:hover, .dropzone.dragover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.06);
+            transform: translateY(-2px);
+        }
+
+        .drop-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 14px;
+            border-radius: 16px;
+            background: rgba(99, 102, 241, 0.14);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .drop-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 6px;
+        }
+
+        .drop-hint {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 18px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            outline: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            box-shadow: 0 4px 14px var(--primary-glow);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: #e2e8f0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn:hover {
+            opacity: 0.92;
+            transform: translateY(-1px);
+        }
+
+        /* Canvas & Laser Scanner */
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #000;
+            margin-bottom: 22px;
+            border: 1px solid var(--card-border);
+            display: none;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: 420px;
+            object-fit: contain;
+            cursor: crosshair;
+        }
+
+        .scan-laser {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #818cf8, #34d399, transparent);
+            box-shadow: 0 0 16px #818cf8, 0 0 8px #34d399;
+            display: none;
+            animation: scanAnim 1.4s ease-in-out infinite alternate;
+        }
+
+        @keyframes scanAnim {
+            0% { top: 0%; }
+            100% { top: 98%; }
+        }
+
+        .canvas-hint {
+            position: absolute;
+            bottom: 10px;
+            right: 12px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            color: #cbd5e1;
+            pointer-events: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Results Display */
+        .result-box {
+            display: none;
+            animation: fadeIn 0.35s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Quality Banner */
+        .verdict-banner {
+            padding: 18px 20px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .verdict-banner.success {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            box-shadow: 0 0 24px var(--success-glow);
+        }
+
+        .verdict-banner.warning {
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            box-shadow: 0 0 24px var(--warning-glow);
+        }
+
+        .verdict-banner.danger {
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            box-shadow: 0 0 24px var(--danger-glow);
+        }
+
+        .verdict-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .verdict-icon { font-size: 32px; }
+        .verdict-title { font-size: 20px; font-weight: 800; }
+        .verdict-banner.success .verdict-title { color: #34d399; }
+        .verdict-banner.warning .verdict-title { color: #fbbf24; }
+        .verdict-banner.danger .verdict-title { color: #f87171; }
+
+        .confidence-badge {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Sizing Card */
+        .size-card {
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.22);
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .size-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .size-card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #e0e7ff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .size-pill {
+            font-size: 12.5px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 8px;
+            background: rgba(16, 185, 129, 0.18);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.35);
+        }
+
+        .size-main-display {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 14px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .size-big-val {
+            font-size: 34px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+
+        .size-big-val span {
+            font-size: 18px;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-left: 4px;
+        }
+
+        .size-sub-stats {
+            background: rgba(0, 0, 0, 0.35);
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 13px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .size-stat-row {
+            display: flex;
+            justify-content: space-between;
+            color: #cbd5e1;
+        }
+
+        .size-stat-row strong {
+            color: #f8fafc;
+        }
+
+        /* Reference Object Controls */
+        .ref-control-section {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 14px;
+            padding: 14px;
+            margin-top: 10px;
+        }
+
+        .ref-label {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ref-presets {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .preset-chip {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-chip.active, .preset-chip:hover {
+            background: rgba(99, 102, 241, 0.25);
+            border-color: #818cf8;
+            color: #ffffff;
+        }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .slider-row input[type=range] {
+            flex: 1;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .slider-val {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #e2e8f0;
+            min-width: 65px;
+            text-align: right;
+        }
+
+        .explanation-text {
+            color: #cbd5e1;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px;
+            border-radius: 12px;
+            border-left: 3px solid var(--primary);
+        }
+
+        /* Metric Grid */
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 22px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .metric-val {
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .reset-btn {
+            width: 100%;
+            justify-content: center;
+            padding: 14px;
+            font-size: 15px;
+        }
+
+        #fileInput, #cameraInput { display: none; }
+
+        @media (max-width: 600px) {
+            .glass-card { padding: 20px; }
+            h1 { font-size: 26px; }
+            .size-main-display { grid-template-columns: 1fr; }
+            .metric-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="badge-pill">
+                <span>⚡</span> AI Quality & Pixel Sizing Engine
+            </div>
+            <h1>Onion Quality & Size Assayer</h1>
+            <p class="subtitle">Upload an onion image to inspect visual quality defects and calculate approximate diameter using a calibrated reference object.</p>
+        </header>
+
+        <div class="glass-card">
+            
+            <!-- Upload Box -->
+            <div id="dropzone" class="dropzone">
+                <div class="drop-icon">🧅</div>
+                <div class="drop-title">Drop your onion photo here</div>
+                <div class="drop-hint">Supports JPEG, PNG, WEBP (Single Bulb or Produce Tray)</div>
+
+                <div class="action-btns" onclick="event.stopPropagation();">
+                    <button class="btn btn-primary" onclick="document.getElementById('fileInput').click();">
+                        📁 Browse File
+                    </button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('cameraInput').click();">
+                        📷 Take Photo
+                    </button>
+                </div>
+            </div>
+
+            <input type="file" id="fileInput" accept="image/*">
+            <input type="file" id="cameraInput" accept="image/*" capture="environment">
+
+            <!-- Interactive Canvas & Scan Laser -->
+            <div id="canvasContainer" class="canvas-container">
+                <canvas id="viewCanvas"></canvas>
+                <div id="scanLaser" class="scan-laser"></div>
+                <div class="canvas-hint">Drag 🪙 reference circle over coin to calibrate</div>
+            </div>
+
+            <!-- Result Box -->
+            <div id="resultBox" class="result-box">
+                
+                <!-- Quality Verdict Banner -->
+                <div id="verdictBanner" class="verdict-banner">
+                    <div class="verdict-left">
+                        <div id="verdictIcon" class="verdict-icon">✅</div>
+                        <div>
+                            <div id="verdictTitle" class="verdict-title">Healthy & Fresh (Grade A)</div>
+                            <div id="qualitySubtitle" style="font-size: 13px; color: var(--text-muted);">Procurement Ready</div>
+                        </div>
+                    </div>
+                    <div id="confidenceBadge" class="confidence-badge">99.2% Conf.</div>
+                </div>
+
+                <!-- Reference Object & Size Measurement Card -->
+                <div class="size-card">
+                    <div class="size-card-header">
+                        <div class="size-card-title">
+                            <span>📐</span> Approximate Equatorial Size
+                        </div>
+                        <div id="sizeCategoryPill" class="size-pill">Grade A (40 – 70 mm)</div>
+                    </div>
+
+                    <div class="size-main-display">
+                        <div>
+                            <div class="size-big-val" id="sizeMmDisplay">54.2 <span>mm</span></div>
+                            <div style="font-size: 14px; color: #a5b4fc; font-weight: 600;" id="sizeCmDisplay">~5.42 cm diameter</div>
+                        </div>
+
+                        <div class="size-sub-stats">
+                            <div class="size-stat-row">
+                                <span>Onion Pixels:</span>
+                                <strong id="onionPxStat">380 px</strong>
+                            </div>
+                            <div class="size-stat-row">
+                                <span>Ref Scale:</span>
+                                <strong id="refScaleStat">7.0 px/mm</strong>
+                            </div>
+                            <div class="size-stat-row">
+                                <span>Ref Object:</span>
+                                <strong id="refTypeStat">🪙 25.0 mm</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Reference Scale Controls -->
+                    <div class="ref-control-section">
+                        <div class="ref-label">
+                            <span>🪙 Reference Object Scale</span>
+                            <span id="refSizeLabel">25.0 mm Coin</span>
+                        </div>
+                        <div class="ref-presets">
+                            <button class="preset-chip active" onclick="setRefPreset('coin25', 25.0, this)">🪙 ₹5/₹10 Coin (25mm)</button>
+                            <button class="preset-chip" onclick="setRefPreset('coin22', 22.0, this)">🪙 ₹1/₹2 Coin (22mm)</button>
+                            <button class="preset-chip" onclick="setRefPreset('card', 85.6, this)">💳 Card (85.6mm)</button>
+                            <button class="preset-chip" onclick="setRefPreset('scale50', 50.0, this)">📏 5cm Marker</button>
+                        </div>
+                        <div class="slider-row">
+                            <span style="font-size: 11px; color: var(--text-muted);">Adjust Ref Pixels:</span>
+                            <input type="range" id="refRadiusSlider" min="20" max="400" value="100" oninput="onRefSliderChange(this.value)">
+                            <span class="slider-val" id="refSliderVal">100 px</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Explanation -->
+                <div id="explanationText" class="explanation-text">
+                    Clean, solid bulb with dry unblemished skin and zero rot or vegetative shoot growth.
+                </div>
+
+                <!-- Quality Grade Distribution -->
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Grade A %</div>
+                        <div id="gradeAVal" class="metric-val" style="color: #34d399;">95%</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">URS %</div>
+                        <div id="ursVal" class="metric-val" style="color: #fbbf24;">5%</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Rejected %</div>
+                        <div id="rejVal" class="metric-val" style="color: #f87171;">0%</div>
+                    </div>
+                </div>
+
+                <button class="btn btn-secondary reset-btn" onclick="resetState();">
+                    🔄 Test Another Onion
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        const cameraInput = document.getElementById('cameraInput');
+        const canvasContainer = document.getElementById('canvasContainer');
+        const canvas = document.getElementById('viewCanvas');
+        const ctx = canvas.getContext('2d');
+        const scanLaser = document.getElementById('scanLaser');
+        const resultBox = document.getElementById('resultBox');
+
+        let loadedImage = new Image();
+        let currentAnalysis = null;
+
+        // Interactive Reference Object State
+        let refState = {
+            knownMm: 25.0,
+            radiusPx: 80,
+            cx: 0,
+            cy: 0,
+            isDragging: false
+        };
+
+        // Onion Measurement State
+        let onionState = {
+            cx: 0,
+            cy: 0,
+            radiusPx: 150,
+            diamPx: 300,
+            bbox: [0, 0, 0, 0]
+        };
+
+        // Drag & Drop
+        ['dragenter', 'dragover'].forEach(eName => {
+            dropzone.addEventListener(eName, (e) => {
+                e.preventDefault();
+                dropzone.classList.add('dragover');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eName => {
+            dropzone.addEventListener(eName, (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('dragover');
+            });
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+        });
+
+        dropzone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) handleFile(e.target.files[0]);
+        });
+        cameraInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please upload an image file.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                loadedImage.onload = () => {
+                    dropzone.style.display = 'none';
+                    canvasContainer.style.display = 'block';
+                    scanLaser.style.display = 'block';
+                    resultBox.style.display = 'none';
+
+                    // Fit canvas to image
+                    canvas.width = loadedImage.naturalWidth;
+                    canvas.height = loadedImage.naturalHeight;
+                    ctx.drawImage(loadedImage, 0, 0);
+
+                    uploadAndAnalyze(file);
+                };
+                loadedImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function uploadAndAnalyze(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error('Failed to analyze image.');
+                const data = await response.json();
+                currentAnalysis = data;
+
+                setTimeout(() => {
+                    scanLaser.style.display = 'none';
+                    initMeasurements(data);
+                    displayResults(data);
+                }, 600);
+
+            } catch (err) {
+                alert('Analysis error: ' + err.message);
+                resetState();
+            }
+        }
+
+        function initMeasurements(data) {
+            const dims = data.dimensions;
+            const w = canvas.width;
+            const h = canvas.height;
+
+            if (dims && dims.onion) {
+                onionState.cx = dims.onion.center[0];
+                onionState.cy = dims.onion.center[1];
+                onionState.diamPx = dims.onion.diam_px;
+                onionState.radiusPx = dims.onion.diam_px / 2;
+                onionState.bbox = dims.onion.bbox;
+            } else {
+                onionState.cx = w * 0.5;
+                onionState.cy = h * 0.5;
+                onionState.diamPx = Math.min(w, h) * 0.5;
+                onionState.radiusPx = onionState.diamPx / 2;
+                onionState.bbox = [w*0.25, h*0.25, w*0.5, h*0.5];
+            }
+
+            if (dims && dims.reference_object) {
+                const ref = dims.reference_object;
+                refState.knownMm = ref.known_size_mm || 25.0;
+                refState.radiusPx = (ref.ref_diam_px || (Math.min(w, h) * 0.15)) / 2;
+                if (ref.detected_coords) {
+                    refState.cx = ref.detected_coords.cx;
+                    refState.cy = ref.detected_coords.cy;
+                } else {
+                    refState.cx = w * 0.82;
+                    refState.cy = h * 0.82;
+                }
+            } else {
+                refState.knownMm = 25.0;
+                refState.radiusPx = Math.min(w, h) * 0.1;
+                refState.cx = w * 0.82;
+                refState.cy = h * 0.82;
+            }
+
+            // Sync slider
+            const slider = document.getElementById('refRadiusSlider');
+            slider.max = Math.round(Math.min(w, h) * 0.6);
+            slider.value = Math.round(refState.radiusPx * 2);
+            document.getElementById('refSliderVal').innerText = Math.round(refState.radiusPx * 2) + ' px';
+
+            drawOverlay();
+            recalculateSize();
+        }
+
+        function drawOverlay() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(loadedImage, 0, 0);
+
+            const w = canvas.width;
+            const h = canvas.height;
+            const baseFontSize = Math.max(14, Math.round(w * 0.022));
+
+            // 1. Draw Onion Equatorial Contour & Measurement
+            ctx.save();
+            ctx.strokeStyle = '#6366f1';
+            ctx.lineWidth = Math.max(3, Math.round(w * 0.004));
+            ctx.setLineDash([8, 6]);
+
+            // Equatorial Circle
+            ctx.beginPath();
+            ctx.arc(onionState.cx, onionState.cy, onionState.radiusPx, 0, 2 * Math.PI);
+            ctx.stroke();
+
+            // Equatorial Diameter Arrow Line
+            ctx.setLineDash([]);
+            ctx.strokeStyle = '#818cf8';
+            ctx.beginPath();
+            ctx.moveTo(onionState.cx - onionState.radiusPx, onionState.cy);
+            ctx.lineTo(onionState.cx + onionState.radiusPx, onionState.cy);
+            ctx.stroke();
+
+            // Label Badge for Onion
+            const onionLabel = `🧅 Onion: ${Math.round(onionState.diamPx)} px`;
+            ctx.font = `bold ${baseFontSize}px 'Plus Jakarta Sans', sans-serif`;
+            const onionTxtW = ctx.measureText(onionLabel).width;
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+            ctx.fillRect(onionState.cx - onionTxtW/2 - 8, onionState.cy - onionState.radiusPx - baseFontSize - 10, onionTxtW + 16, baseFontSize + 8);
+            ctx.fillStyle = '#c7d2fe';
+            ctx.fillText(onionLabel, onionState.cx - onionTxtW/2, onionState.cy - onionState.radiusPx - 8);
+            ctx.restore();
+
+            // 2. Draw Reference Object (Coin/Card scale)
+            ctx.save();
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = Math.max(3, Math.round(w * 0.004));
+            ctx.fillStyle = 'rgba(245, 158, 11, 0.2)';
+
+            ctx.beginPath();
+            ctx.arc(refState.cx, refState.cy, refState.radiusPx, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.stroke();
+
+            // Reference Object Center Icon & Diameter Tag
+            ctx.beginPath();
+            ctx.arc(refState.cx, refState.cy, Math.max(4, Math.round(w * 0.006)), 0, 2 * Math.PI);
+            ctx.fillStyle = '#f59e0b';
+            ctx.fill();
+
+            const refDiamPx = Math.round(refState.radiusPx * 2);
+            const refLabel = `🪙 Ref (${refState.knownMm}mm | ${refDiamPx}px)`;
+            ctx.font = `bold ${baseFontSize}px 'Plus Jakarta Sans', sans-serif`;
+            const refTxtW = ctx.measureText(refLabel).width;
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+            ctx.fillRect(refState.cx - refTxtW/2 - 8, refState.cy - refState.radiusPx - baseFontSize - 10, refTxtW + 16, baseFontSize + 8);
+            ctx.fillStyle = '#fde68a';
+            ctx.fillText(refLabel, refState.cx - refTxtW/2, refState.cy - refState.radiusPx - 8);
+            ctx.restore();
+        }
+
+        function recalculateSize() {
+            const refDiamPx = refState.radiusPx * 2;
+            if (refDiamPx <= 0) return;
+
+            const pxPerMm = refDiamPx / refState.knownMm;
+            const onionMm = onionState.diamPx / pxPerMm;
+            const onionCm = onionMm / 10;
+
+            document.getElementById('sizeMmDisplay').innerHTML = `${onionMm.toFixed(1)} <span>mm</span>`;
+            document.getElementById('sizeCmDisplay').innerText = `~${onionCm.toFixed(2)} cm equatorial diameter`;
+
+            document.getElementById('onionPxStat').innerText = `${Math.round(onionState.diamPx)} px`;
+            document.getElementById('refScaleStat').innerText = `${pxPerMm.toFixed(1)} px/mm`;
+            document.getElementById('refTypeStat').innerText = `🪙 ${refState.knownMm.toFixed(1)} mm`;
+
+            // Size Category
+            const pill = document.getElementById('sizeCategoryPill');
+            if (onionMm < 40.0) {
+                pill.innerText = 'Small / Undersized (< 40 mm)';
+                pill.style.background = 'rgba(245, 158, 11, 0.18)';
+                pill.style.color = '#fbbf24';
+                pill.style.borderColor = 'rgba(245, 158, 11, 0.35)';
+            } else if (onionMm <= 70.0) {
+                pill.innerText = 'Grade A Standard (40 – 70 mm)';
+                pill.style.background = 'rgba(16, 185, 129, 0.18)';
+                pill.style.color = '#34d399';
+                pill.style.borderColor = 'rgba(16, 185, 129, 0.35)';
+            } else {
+                pill.innerText = 'Large / Jumbo (> 70 mm)';
+                pill.style.background = 'rgba(99, 102, 241, 0.18)';
+                pill.style.color = '#a5b4fc';
+                pill.style.borderColor = 'rgba(99, 102, 241, 0.35)';
+            }
+        }
+
+        // Preset Selector
+        function setRefPreset(type, mm, btnEl) {
+            document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
+            if (btnEl) btnEl.classList.add('active');
+
+            refState.knownMm = mm;
+            document.getElementById('refSizeLabel').innerText = `${mm.toFixed(1)} mm Object`;
+
+            drawOverlay();
+            recalculateSize();
+        }
+
+        // Slider for Reference Radius
+        function onRefSliderChange(val) {
+            refState.radiusPx = parseFloat(val) / 2;
+            document.getElementById('refSliderVal').innerText = val + ' px';
+            drawOverlay();
+            recalculateSize();
+        }
+
+        // Interactive Canvas Dragging of Reference Object
+        function getCanvasCoords(evt) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+            const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
+
+        function isInsideRef(x, y) {
+            const dx = x - refState.cx;
+            const dy = y - refState.cy;
+            return Math.sqrt(dx*dx + dy*dy) <= (refState.radiusPx * 1.3);
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            const pos = getCanvasCoords(e);
+            if (isInsideRef(pos.x, pos.y)) {
+                refState.isDragging = true;
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!refState.isDragging) return;
+            const pos = getCanvasCoords(e);
+            refState.cx = Math.max(refState.radiusPx, Math.min(canvas.width - refState.radiusPx, pos.x));
+            refState.cy = Math.max(refState.radiusPx, Math.min(canvas.height - refState.radiusPx, pos.y));
+            drawOverlay();
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (refState.isDragging) {
+                refState.isDragging = false;
+                recalculateSize();
+            }
+        });
+
+        // Touch support for mobile
+        canvas.addEventListener('touchstart', (e) => {
+            const pos = getCanvasCoords(e);
+            if (isInsideRef(pos.x, pos.y)) {
+                refState.isDragging = true;
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        window.addEventListener('touchmove', (e) => {
+            if (!refState.isDragging) return;
+            const pos = getCanvasCoords(e);
+            refState.cx = Math.max(refState.radiusPx, Math.min(canvas.width - refState.radiusPx, pos.x));
+            refState.cy = Math.max(refState.radiusPx, Math.min(canvas.height - refState.radiusPx, pos.y));
+            drawOverlay();
+            e.preventDefault();
+        }, { passive: false });
+
+        window.addEventListener('touchend', () => {
+            if (refState.isDragging) {
+                refState.isDragging = false;
+                recalculateSize();
+            }
+        });
+
+        function displayResults(data) {
+            const banner = document.getElementById('verdictBanner');
+            const icon = document.getElementById('verdictIcon');
+            const title = document.getElementById('verdictTitle');
+            const subtitle = document.getElementById('qualitySubtitle');
+            const conf = document.getElementById('confidenceBadge');
+            const expl = document.getElementById('explanationText');
+
+            banner.className = 'verdict-banner ' + data.badge_type;
+            title.innerText = data.verdict;
+            conf.innerText = data.confidence + '% AI Conf.';
+            expl.innerText = data.explanation;
+
+            if (data.badge_type === 'success') {
+                icon.innerText = '✅';
+                subtitle.innerText = 'Top Procurement Grade';
+            } else if (data.badge_type === 'warning') {
+                icon.innerText = '⚠️';
+                subtitle.innerText = 'Under-Relaxed Specification (URS)';
+            } else {
+                icon.innerText = '❌';
+                subtitle.innerText = 'Non-Compliant / Rejected';
+            }
+
+            document.getElementById('gradeAVal').innerText = data.grade_distribution.grade_a + '%';
+            document.getElementById('ursVal').innerText = data.grade_distribution.urs + '%';
+            document.getElementById('rejVal').innerText = data.grade_distribution.rejected + '%';
+
+            resultBox.style.display = 'block';
+        }
+
+        function resetState() {
+            fileInput.value = '';
+            cameraInput.value = '';
+            canvasContainer.style.display = 'none';
+            resultBox.style.display = 'none';
+            dropzone.style.display = 'block';
+            scanLaser.style.display = 'none';
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    </script>
+</body>
+</html>
