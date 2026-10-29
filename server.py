@@ -252,6 +252,14 @@ async def analyze_image(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/health")
+async def health_check():
+    return {"status": "ok", "app": "Onion Quality & Size AI Assayer"}
+
+@app.get("/api/samples")
+async def get_samples():
+    return []
+
 @app.get("/", response_class=HTMLResponse)
 async def serve_frontend():
     html_path = os.path.join(STATIC_DIR, "index.html")
@@ -262,4 +270,5 @@ async def serve_frontend():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("server:app", host="0.0.0.0", port=5000, reload=False)
+    port = int(os.environ.get("PORT", 5000))
+    uvicorn.run("server:app", host="0.0.0.0", port=port, reload=False)
