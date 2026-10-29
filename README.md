@@ -9,14 +9,18 @@
 ![OpenCV](https://img.shields.io/badge/OpenCV-Computer%20Vision-5C3EE8?style=for-the-badge&logo=opencv&logoColor=white)
 ![Accuracy](https://img.shields.io/badge/Validation%20Accuracy-94.44%25-10B981?style=for-the-badge)
 ![Latency](https://img.shields.io/badge/CPU%20Inference-%3C120ms-6366F1?style=for-the-badge)
-![License](https://img.shields.io/badge/License-Academic%20Research-blue?style=for-the-badge)
+[![Live Demo](https://img.shields.io/badge/Live%20Web%20App-Render.com-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://onion-quality-grading.onrender.com/)
+[![Presentation](https://img.shields.io/badge/PowerPoint-6--Slide%20Presentation-D24726?style=for-the-badge&logo=microsoftpowerpoint&logoColor=white)](./Onion_Quality_Grading_Presentation_Krishan_Kumar.pptx)
 
 <br/>
 
 **Author:** **Krishan Kumar** &nbsp;|&nbsp; **Registration No:** `12410760` &nbsp;|&nbsp; **Section:** `K2P24WM`  
 **School of Computer Science and Engineering**  
 **Lovely Professional University (LPU), Punjab, India**  
-📄 **Academic Project Report:** [`Onion_Quality_Grading_Project_Report_Krishan_Kumar.pdf`](./Onion_Quality_Grading_Project_Report_Krishan_Kumar.pdf)
+
+🌐 **Live Application:** **[https://onion-quality-grading.onrender.com/](https://onion-quality-grading.onrender.com/)**  
+📄 **Academic Project Report:** [`Onion_Quality_Grading_Project_Report_Krishan_Kumar.pdf`](./Onion_Quality_Grading_Project_Report_Krishan_Kumar.pdf)  
+📊 **Official PPT Presentation:** [`Onion_Quality_Grading_Presentation_Krishan_Kumar.pptx`](./Onion_Quality_Grading_Presentation_Krishan_Kumar.pptx)
 
 </div>
 
@@ -226,7 +230,11 @@ pip install -r requirements.txt
 ```bash
 python server.py
 ```
-The application will launch at **`http://localhost:5000`** (or `http://127.0.0.1:5000`).
+The application will launch locally at **`http://localhost:5000`** (or `http://127.0.0.1:5000`).
+
+### 🌐 Live Cloud Deployment (Production)
+The project is hosted live on Render's cloud infrastructure:  
+👉 **[https://onion-quality-grading.onrender.com/](https://onion-quality-grading.onrender.com/)**
 
 ### 5. Generate the Official LPU Capstone PDF Report
 To recompile the official 13-page academic project report:
